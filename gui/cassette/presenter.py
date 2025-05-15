@@ -52,7 +52,7 @@ class CassettePresenter(QObject):
     @Slot(str, str, str, list)
     def _on_add(self, title, cond, cost, genres):
         try:
-            id_cassette = self._ac.execute(title, cond, float(cost))
+            id_cassette = self._ac.execute(title, cond, cost)
             self._sgc.execute(id_cassette, genres)
             self._refresh()
         except Exception as e:
@@ -70,11 +70,11 @@ class CassettePresenter(QObject):
     @Slot(int, str, str, str, list)
     def _on_upd(self, id_cassette, title, cond, cost, genres):
         try:
-            self._uc.execute(id_cassette, title, cond, float(cost))
+            self._uc.execute(id_cassette, title, cond, cost)
             self._sgc.execute(id_cassette, genres)
             self._refresh()
-        except Exception as exc:
-            self._show_err(exc)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(int)
     def _on_row_selected(self, id_cassette: int):

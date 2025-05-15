@@ -1,20 +1,13 @@
-from dataclasses import dataclass
 from typing import Sequence
 
-from data import CassetteGenreData
+from base import BaseUseCase
 
 
-@dataclass(slots=True)
-class ListGenresForCassette:
-    repo: CassetteGenreData
-
-    def execute(self, id_cassette: int) -> None:
+class ListGenresForCassette(BaseUseCase):
+    def perform(self, id_cassette: int) -> Sequence[int]:
         return self.repo.list_for(id_cassette)
 
 
-@dataclass(slots=True)
-class SetCassetteGenres:
-    repo: CassetteGenreData
-
-    def execute(self, id_cassette: int, genres: Sequence[int]) -> None:
+class SetCassetteGenres(BaseUseCase):
+    def perform(self, id_cassette: int, genres: Sequence[int]):
         self.repo.replace(id_cassette, genres)

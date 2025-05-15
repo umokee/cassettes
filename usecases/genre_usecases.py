@@ -1,42 +1,34 @@
-from dataclasses import dataclass
 from typing import Sequence
 
-from data import Genre, GenreData
+from base import BaseUseCase
+from data import Genre
 
 
-@dataclass(slots=True)
-class ListGenres:
-    repo: GenreData
-
-    def execute(self) -> Sequence[Genre]:
+class ListGenres(BaseUseCase):
+    def perform(self) -> Sequence[Genre]:
         return self.repo.list()
 
 
-@dataclass(slots=True)
-class AddGenre:
-    repo: GenreData
-
-    def execute(self, name: str, description: str) -> None:
-        name = name.strip()
+class AddGenre(BaseUseCase):
+    def validate(self, name: str, _d):
+        name = (name or "").strip()
         if not name:
-            raise ValueError("Title cannot be empty")
+            raise ValueError("Заголовок не можешь быть пустым")
+
+    def perform(self, name: str, description: str):
         self.repo.add(name, description)
 
 
-@dataclass(slots=True)
-class DeleteGenre:
-    repo: GenreData
-
-    def execute(self, id_genre: int) -> None:
+class DeleteGenre(BaseUseCase):
+    def perform(self, id_genre: int):
         self.repo.delete(id_genre)
 
 
-@dataclass(slots=True)
-class UpdateGenre:
-    repo: GenreData
-
-    def execute(self, id_genre: int, name: str, description: str) -> None:
-        name = name.strip()
+class UpdateGenre(BaseUseCase):
+    def validate(self, _i, name: str, _d):
+        name = (name or "").strip()
         if not name:
-            raise ValueError("Title cannot be empty")
+            raise ValueError("Заголовок не можешь быть пустым")
+
+    def perform(self, id_genre: int, name: str, description: str):
         self.repo.update(id_genre, name, description)
