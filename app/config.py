@@ -20,6 +20,11 @@ ROLE_PERMISSIONS = {
             "readonly": False,
             "label": "Управление жанрами",
         },
+        "FineManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление штрафами",
+        },
     },
     "кассир": {
         "CassetteManagement": {
@@ -31,6 +36,11 @@ ROLE_PERMISSIONS = {
             "enabled": False,
             "readonly": False,
             "label": "Жанры",
+        },
+        "FineManagement": {
+            "enabled": True,
+            "readonly": True,
+            "label": "Штрафы",
         },
     },
 }

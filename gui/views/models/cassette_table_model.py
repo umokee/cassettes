@@ -4,7 +4,7 @@ from data.entities import Cassette
 
 
 class CassetteTableModel(QAbstractTableModel):
-    _headers = ["ID", "Title", "Condition", "Rental cost", "Genres"]
+    _headers = ["ID", "Заголовок", "Состояние", "Стоимость", "Жанр"]
 
     def __init__(self, rows: list[Cassette] | None = None):
         super().__init__()

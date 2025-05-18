@@ -14,26 +14,20 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from data.entities import Cassette, Genre
-from gui.views.models import CassetteTableModel
-from gui.widgets import MultiSelectComboBox
+from data.entities import Fine
+from gui.views.models import FineTableModel
 
 
-class CassetteManagementView(QWidget):
-    add_request = Signal(str, str, str, list)
+class FineManagementView(QWidget):
+    add_request = Signal(str, str)
     del_request = Signal(int)
-    upd_request = Signal(int, str, str, str, list)
+    upd_request = Signal(int, str, str)
     sel_changed = Signal(int)
-    not_readonly = Signal()
 
     def __init__(self, readonly: bool = False):
         super().__init__()
         self._readonly = readonly
         self._build_ui()
-
-    @property
-    def is_readonly(self) -> bool:
-        return self._readonly
 
     def _build_ui(self):
         root = QVBoxLayout()
@@ -45,7 +39,7 @@ class CassetteManagementView(QWidget):
         filter.addWidget(self.filter_input, stretch=3)
         filter.addWidget(self.filter_column, stretch=1)
 
-        self._model = CassetteTableModel([])
+        self._model = FineTableModel([])
         self._proxy = QSortFilterProxyModel(self)
         self._proxy.setSourceModel(self._model)
         self._proxy.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
@@ -54,25 +48,20 @@ class CassetteManagementView(QWidget):
         self.table.setModel(self._proxy)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         if not self._readonly:
             form = QFormLayout()
-            self.title_input = QLineEdit()
-            self.cond_input = QComboBox()
-            self.cond_input.addItems(["Хорошее", "Удовлетворительное", "Плохое"])
-            self.cost_input = QLineEdit()
-            self.genre_input = MultiSelectComboBox()
+            self.reason_input = QLineEdit()
+            self.amount_input = QLineEdit()
 
-            form.addRow("Название:", self.title_input)
-            form.addRow("Состояние:", self.cond_input)
-            form.addRow("Стоимость:", self.cost_input)
-            form.addRow("Жанры:", self.genre_input)
+            form.addRow("Причина:", self.reason_input)
+            form.addRow("Сумма:", self.amount_input)
 
             btn_box = QVBoxLayout()
-            add_btn = QPushButton("Добавить кассету")
-            del_btn = QPushButton("Удалить кассету")
-            upd_btn = QPushButton("Изменить кассету")
+            add_btn = QPushButton("Добавить штраф")
+            del_btn = QPushButton("Удалить штраф")
+            upd_btn = QPushButton("Изменить штраф")
             for b in (add_btn, del_btn, upd_btn):
                 btn_box.addWidget(b)
 
@@ -109,73 +98,53 @@ class CassetteManagementView(QWidget):
 
     @Slot()
     def _on_sel_changed(self):
-        cassette = self.get_selected_cassette()
-        if cassette:
-            self.sel_changed.emit(cassette.id_cassette)
+        fine = self.get_selected_fine()
+        if fine:
+            self.sel_changed.emit(fine.id_fine)
         else:
             self._clear()
 
     @Slot()
     def _on_add_click(self):
-        self.add_request.emit(
-            self.title_input.text(),
-            self.cond_input.currentText(),
-            self.cost_input.text(),
-            self.genre_input.currentData(),
-        )
+        self.add_request.emit(self.reason_input.text(), self.amount_input.text())
         self._clear()
 
     @Slot()
     def _on_del_click(self):
-        id_cassette = self.get_selected_id()
-        if id_cassette is not None:
-            self.del_request.emit(id_cassette)
+        fine_id = self.get_selected_id()
+        if fine_id is not None:
+            self.del_request.emit(fine_id)
             self._clear()
 
     @Slot()
     def _on_upd_click(self):
-        id_cassette = self.get_selected_id()
-        if id_cassette is not None:
-            self.upd_request.emit(
-                id_cassette,
-                self.title_input.text(),
-                self.cond_input.currentText(),
-                self.cost_input.text(),
-                self.genre_input.currentData(),
-            )
+        fine_id = self.get_selected_id()
+        if fine_id is not None:
+            self.upd_request.emit(fine_id, self.reason_input.text(), self.amount_input.text())
             self._clear()
 
     def _clear(self):
-        self.title_input.clear()
-        self.cost_input.clear()
-        self.cond_input.setCurrentIndex(0)
-        self.genre_input.setCurrentIndexes([])
+        self.reason_input.clear()
+        self.amount_input.clear()
 
-    def set_genres(self, genres: list[Genre]):
-        self.genre_input.clear()
-        for g in genres:
-            self.genre_input.addItem(g.name, g.id_genre)
-
-    def show_table(self, rows: list[Cassette]):
+    def show_table(self, rows: list[Fine]):
         self._model.set_rows(rows)
         self._proxy.invalidateFilter()
 
-    def set_form(self, c: Cassette):
-        self.title_input.setText(c.title)
-        self.cond_input.setCurrentText(c.condition)
-        self.cost_input.setText(str(c.rental_cost))
-        self.genre_input.setCheckedIds(list(c.genre_ids))
+    def set_form(self, f: Fine):
+        self.reason_input.setText(f.reason)
+        self.amount_input.setText(str(f.amount))
 
     def get_selected_id(self) -> int | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.cassette_id_at(row)
+        return self._model.fine_id_at(row)
 
-    def get_selected_cassette(self) -> Cassette | None:
+    def get_selected_fine(self) -> Fine | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.cassette_at(row)
+        return self._model.fine_at(row)
