@@ -1,12 +1,36 @@
-from app.services import AccessPolicy, AuthService, CassetteService, FineService, GenreService
+from app.services import (
+    AccessPolicy,
+    AuthService,
+    CassetteService,
+    ClientService,
+    ClientStatusService,
+    FineService,
+    GenreService,
+)
 from data import Database
-from data.repo import CassetteRepository, EmployeeRepository, FineRepository, GenreRepository
+from data.repo import (
+    CassetteRepository,
+    ClientRepository,
+    ClientStatusRepository,
+    EmployeeRepository,
+    FineRepository,
+    GenreRepository,
+)
 from gui.presenters import (
     CassetteManagementPresenter,
+    ClientManagementPresenter,
+    ClientStatusManagementPresenter,
     FineManagementPresenter,
     GenreManagementPresenter,
 )
-from gui.views import CassetteManagementView, FineManagementView, GenreManagementView, MainWindow
+from gui.views import (
+    CassetteManagementView,
+    ClientManagementView,
+    ClientStatusManagementView,
+    FineManagementView,
+    GenreManagementView,
+    MainWindow,
+)
 
 SECTIONS = {
     "CassetteManagement": {
@@ -21,6 +45,14 @@ SECTIONS = {
         "view": FineManagementView,
         "presenter": "fine_management",
     },
+    "ClientManagement": {
+        "view": ClientManagementView,
+        "presenter": "client_management",
+    },
+    "ClientStatusManagement": {
+        "view": ClientStatusManagementView,
+        "presenter": "status_management",
+    },
 }
 
 
@@ -34,20 +66,30 @@ class Container:
         self.genre_repo = GenreRepository(self.db)
         self.employee_repo = EmployeeRepository(self.db)
         self.fine_repo = FineRepository(self.db)
+        self.client_repo = ClientRepository(self.db)
+        self.status_repo = ClientStatusRepository(self.db)
 
         self.cassette_service = CassetteService(self.cassette_repo)
         self.genre_service = GenreService(self.genre_repo)
         self.auth_service = AuthService(self.employee_repo)
         self.fine_service = FineService(self.fine_repo)
+        self.client_service = ClientService(self.client_repo)
+        self.status_service = ClientStatusService(self.status_repo)
 
-    def cassette_management(self, view: CassetteManagementView) -> CassetteManagementPresenter:
+    def cassette_management(self, view: CassetteManagementView):
         return CassetteManagementPresenter(view, self.cassette_service, self.genre_service)
 
-    def genre_management(self, view: GenreManagementView) -> GenreManagementPresenter:
+    def genre_management(self, view: GenreManagementView):
         return GenreManagementPresenter(view, self.genre_service)
 
-    def fine_management(self, view: FineManagementView) -> FineManagementPresenter:
+    def fine_management(self, view: FineManagementView):
         return FineManagementPresenter(view, self.fine_service)
+
+    def client_management(self, view: ClientManagementView):
+        return ClientManagementPresenter(view, self.client_service, self.status_service)
+
+    def status_management(self, view: ClientStatusManagementView):
+        return ClientStatusManagementPresenter(view, self.status_service)
 
     def main_window(self, employee) -> MainWindow:
         role = employee.position

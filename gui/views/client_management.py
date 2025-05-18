@@ -14,20 +14,23 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from data.entities import Genre
-from gui.views.models import GenreTableModel
+from data.entities import Client, ClientStatus
+from gui.views.models import ClientTableModel
 
 
-class GenreManagementView(QWidget):
-    add_request = Signal(str, str)
-    del_request = Signal(int)
-    upd_request = Signal(int, str, str)
+class ClientManagementView(QWidget):
+    add_request = Signal(str, str, str, int)
+    upd_request = Signal(int, str, str, str, int)
     sel_changed = Signal(int)
 
     def __init__(self, readonly: bool = False):
         super().__init__()
         self._readonly = readonly
         self._build_ui()
+
+    @property
+    def is_readonly(self) -> bool:
+        return self._readonly
 
     def _build_ui(self):
         root = QVBoxLayout()
@@ -39,7 +42,7 @@ class GenreManagementView(QWidget):
         filter.addWidget(self.filter_input, stretch=3)
         filter.addWidget(self.filter_column, stretch=1)
 
-        self._model = GenreTableModel([])
+        self._model = ClientTableModel([])
         self._proxy = QSortFilterProxyModel(self)
         self._proxy.setSourceModel(self._model)
         self._proxy.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
@@ -52,21 +55,23 @@ class GenreManagementView(QWidget):
 
         if not self._readonly:
             form = QFormLayout()
-            self.name_input = QLineEdit()
-            self.desc_input = QLineEdit()
+            self.full_name_input = QLineEdit()
+            self.login_input = QLineEdit()
+            self.email_input = QLineEdit()
+            self.status_input = QComboBox()
 
-            form.addRow("Название:", self.name_input)
-            form.addRow("Описание:", self.desc_input)
+            form.addRow("ФИО:", self.full_name_input)
+            form.addRow("Логин:", self.login_input)
+            form.addRow("Email:", self.email_input)
+            form.addRow("Cтатус:", self.status_input)
 
             btn_box = QVBoxLayout()
-            add_btn = QPushButton("Добавить жанр")
-            del_btn = QPushButton("Удалить жанр")
-            upd_btn = QPushButton("Изменить жанр")
-            for b in (add_btn, del_btn, upd_btn):
+            add_btn = QPushButton("Добавить клиента")
+            upd_btn = QPushButton("Изменить клиента")
+            for b in (add_btn, upd_btn):
                 btn_box.addWidget(b)
 
             add_btn.clicked.connect(self._on_add_click)
-            del_btn.clicked.connect(self._on_del_click)
             upd_btn.clicked.connect(self._on_upd_click)
 
             top = QHBoxLayout()
@@ -98,53 +103,67 @@ class GenreManagementView(QWidget):
 
     @Slot()
     def _on_sel_changed(self):
-        genre = self.get_selected_genre()
-        if genre:
-            self.sel_changed.emit(genre.id_genre)
+        client = self.get_selected_client()
+        if client:
+            self.sel_changed.emit(client.id_client)
         else:
             self._clear()
 
     @Slot()
     def _on_add_click(self):
-        self.add_request.emit(self.name_input.text(), self.desc_input.text())
+        self.add_request.emit(
+            self.full_name_input.text(),
+            self.login_input.text(),
+            self.email_input.text(),
+            self.status_input.currentData(),
+        )
         self._clear()
 
     @Slot()
-    def _on_del_click(self):
-        genre_id = self.get_selected_id()
-        if genre_id is not None:
-            self.del_request.emit(genre_id)
-            self._clear()
-
-    @Slot()
     def _on_upd_click(self):
-        genre_id = self.get_selected_id()
-        if genre_id is not None:
-            self.upd_request.emit(genre_id, self.name_input.text(), self.desc_input.text())
+        client_id = self.get_selected_id()
+        if client_id is not None:
+            self.upd_request.emit(
+                client_id,
+                self.full_name_input.text(),
+                self.login_input.text(),
+                self.email_input.text(),
+                self.status_input.currentData(),
+            )
             self._clear()
 
     def _clear(self):
-        self.name_input.clear()
-        self.desc_input.clear()
+        self.full_name_input.clear()
+        self.login_input.clear()
+        self.email_input.clear()
+        self.status_input.setCurrentIndex(0)
 
-    def show_table(self, rows: list[Genre]):
+    def show_table(self, rows: list[Client]):
         self._model.set_rows(rows)
         self._proxy.invalidateFilter()
 
-    def set_form(self, g: Genre):
-        self.name_input.setText(g.name)
-        self.desc_input.setText(g.description)
+    def set_form(self, c: Client):
+        self.full_name_input.setText(c.full_name)
+        self.login_input.setText(c.login)
+        self.email_input.setText(c.email)
+        index = self.status_input.findText(c.status)
+        self.status_input.setCurrentIndex(index)
+
+    def set_statuses(self, statuses: list[ClientStatus]):
+        self.status_input.clear()
+        for s in statuses:
+            self.status_input.addItem(s.name, s.id_client_status)
 
     def get_selected_id(self) -> int | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.genre_id_at(row)
+        return self._model.client_id_at(row)
 
-    def get_selected_genre(self) -> Genre | None:
+    def get_selected_client(self) -> Client | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.genre_at(row)
+        return self._model.client_at(row)

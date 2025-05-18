@@ -25,6 +25,16 @@ ROLE_PERMISSIONS = {
             "readonly": False,
             "label": "Управление штрафами",
         },
+        "ClientManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление клиентами",
+        },
+        "ClientStatusManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление статусами клиентов",
+        },
     },
     "кассир": {
         "CassetteManagement": {
@@ -41,6 +51,16 @@ ROLE_PERMISSIONS = {
             "enabled": True,
             "readonly": True,
             "label": "Штрафы",
+        },
+        "ClientManagement": {
+            "enabled": True,
+            "readonly": True,
+            "label": "Клиенты",
+        },
+        "ClientStatusManagement": {
+            "enabled": False,
+            "readonly": False,
+            "label": "Статусы клиентов",
         },
     },
 }

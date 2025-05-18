@@ -14,11 +14,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from data.entities import Genre
-from gui.views.models import GenreTableModel
+from data.entities import ClientStatus
+from gui.views.models import ClientStatusTableModel
 
 
-class GenreManagementView(QWidget):
+class ClientStatusManagementView(QWidget):
     add_request = Signal(str, str)
     del_request = Signal(int)
     upd_request = Signal(int, str, str)
@@ -39,7 +39,7 @@ class GenreManagementView(QWidget):
         filter.addWidget(self.filter_input, stretch=3)
         filter.addWidget(self.filter_column, stretch=1)
 
-        self._model = GenreTableModel([])
+        self._model = ClientStatusTableModel([])
         self._proxy = QSortFilterProxyModel(self)
         self._proxy.setSourceModel(self._model)
         self._proxy.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
@@ -59,9 +59,9 @@ class GenreManagementView(QWidget):
             form.addRow("Описание:", self.desc_input)
 
             btn_box = QVBoxLayout()
-            add_btn = QPushButton("Добавить жанр")
-            del_btn = QPushButton("Удалить жанр")
-            upd_btn = QPushButton("Изменить жанр")
+            add_btn = QPushButton("Добавить статус")
+            del_btn = QPushButton("Удалить статус")
+            upd_btn = QPushButton("Изменить статус")
             for b in (add_btn, del_btn, upd_btn):
                 btn_box.addWidget(b)
 
@@ -98,9 +98,9 @@ class GenreManagementView(QWidget):
 
     @Slot()
     def _on_sel_changed(self):
-        genre = self.get_selected_genre()
-        if genre:
-            self.sel_changed.emit(genre.id_genre)
+        status = self.get_selected_status()
+        if status:
+            self.sel_changed.emit(status.id_client_status)
         else:
             self._clear()
 
@@ -111,40 +111,40 @@ class GenreManagementView(QWidget):
 
     @Slot()
     def _on_del_click(self):
-        genre_id = self.get_selected_id()
-        if genre_id is not None:
-            self.del_request.emit(genre_id)
+        status_id = self.get_selected_id()
+        if status_id is not None:
+            self.del_request.emit(status_id)
             self._clear()
 
     @Slot()
     def _on_upd_click(self):
-        genre_id = self.get_selected_id()
-        if genre_id is not None:
-            self.upd_request.emit(genre_id, self.name_input.text(), self.desc_input.text())
+        status_id = self.get_selected_id()
+        if status_id is not None:
+            self.upd_request.emit(status_id, self.name_input.text(), self.desc_input.text())
             self._clear()
 
     def _clear(self):
         self.name_input.clear()
         self.desc_input.clear()
 
-    def show_table(self, rows: list[Genre]):
+    def show_table(self, rows: list[ClientStatus]):
         self._model.set_rows(rows)
         self._proxy.invalidateFilter()
 
-    def set_form(self, g: Genre):
-        self.name_input.setText(g.name)
-        self.desc_input.setText(g.description)
+    def set_form(self, cs: ClientStatus):
+        self.name_input.setText(cs.name)
+        self.desc_input.setText(cs.description)
 
     def get_selected_id(self) -> int | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.genre_id_at(row)
+        return self._model.status_id_at(row)
 
-    def get_selected_genre(self) -> Genre | None:
+    def get_selected_status(self) -> ClientStatus | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.genre_at(row)
+        return self._model.status_at(row)
