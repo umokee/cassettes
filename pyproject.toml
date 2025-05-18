@@ -1,22 +1,28 @@
-[project]
-requires-python = ">=3.12"
+[tool.ruff]
+line-length = 100
+target-version = "py311"
 
-[tool.black]
-line-length = 80
-skip-string-normalization = true
-skip-magic-trailing-comma = true
+select = [
+  "F",      # pyflakes (ошибки в коде)
+  "E", "W", # pycodestyle
+  "I",      # isort
+  "UP",     # pyupgrade
+  "B",      # bugbear
+  "TCH",    # typing imports
+  "TID",    # typing style
+    # аннотации (только если хочешь частично типовую проверку)
+]
 
-exclude = '''
-/(
-    \.git
-  | \.venv
-  | __pycache__
-  | migrations
-)/
-'''
+ignore = [
+  "B008",   # не ругаться на вызов mutable default
+]
 
-[tool.isort]
-profile = "black"
-line_length = 80
-multi_line_output = 3
-include_trailing_comma = true
+[tool.mypy]
+strict = false
+ignore_missing_imports = true
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+warn_return_any = false
+warn_unused_ignores = false

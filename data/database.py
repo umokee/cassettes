@@ -1,16 +1,22 @@
+from collections.abc import Sequence
 from contextlib import contextmanager
-from typing import Any, Sequence
+from typing import Any
 
 import psycopg2
 
-dsn = "dbname=Cassettes user=postgres password=112211 host=192.168.1.118"
+from app.config import DB_CONFIG
 
 
 class Database:
+    def __init__(self, autocommit: bool = False):
+        self._conn = psycopg2.connect(**DB_CONFIG)
+        self._conn.autocommit = autocommit
 
-    def __init__(self, autocommmit: bool = False):
-        self._conn = psycopg2.connect(dsn)
-        self._conn.autocommit = autocommmit
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     @contextmanager
     def cursor(self):
@@ -22,11 +28,11 @@ class Database:
                 self._conn.rollback()
                 raise
 
-    def execute(self, sql: str, *params: Any) -> None:
+    def execute(self, sql: str, *params: Any):
         with self.cursor() as cur:
             cur.execute(sql, params)
 
-    def execute_many(self, sql: str, seq: Sequence) -> None:
+    def execute_many(self, sql: str, seq: Sequence):
         with self.cursor() as cur:
             cur.executemany(sql, seq)
 
@@ -36,8 +42,9 @@ class Database:
             return cur.fetchall()
 
     def fetch_one(self, sql: str, *params: Any) -> tuple | None:
-        rows = self.fetch_all(sql, *params)
-        return rows[0] if rows else None
+        with self.cursor() as cur:
+            cur.execute(sql, params)
+            return cur.fetchone()
 
-    def close(self) -> None:
+    def close(self):
         self._conn.close()
