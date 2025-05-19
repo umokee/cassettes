@@ -27,14 +27,20 @@ class EmployeeManagementPresenter(QObject):
 
     def _init_positions(self):
         if not self._view.is_readonly:
-            positions = self._position.get_all()
-            self._view.set_positions(positions)
+            try:
+                positions = self._position.get_all()
+                self._view.set_positions(positions)
+            except Exception as e:
+                self._show_err(e)
 
     @Slot(int)
     def _on_sel(self, id_employee):
-        employee = next((e for e in self._employee.get_all() if e.id_employee == id_employee), None)
-        if employee:
-            self._view.set_form(employee)
+        try:
+            employee = self._employee.get(id_employee)
+            if employee:
+                self._view.set_form(employee)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(str, str, str, str, int)
     def _on_add(self, full_name, login, passwd, email, id_status):
@@ -53,7 +59,11 @@ class EmployeeManagementPresenter(QObject):
             self._show_err(e)
 
     def _refresh(self):
-        self._view.show_table(self._employee.get_all())
+        try:
+            employees = self._employee.get_all()
+            self._view.show_table(employees)
+        except Exception as e:
+            self._show_err(e)
 
-    def _show_err(self, exc: Exception):
-        QMessageBox.critical(self._view, "Ошибка", str(exc), QMessageBox.StandardButton.Ok)
+    def _show_err(self, e: Exception):
+        QMessageBox.critical(self._view, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

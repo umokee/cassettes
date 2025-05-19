@@ -11,6 +11,9 @@ class PositionService:
     def get_all(self) -> Sequence[Position]:
         return self._repo.list()
 
+    def get(self, id_position: int) -> Position | None:
+        return self._repo.get(id_position)
+
     def add(self, name: str, desc: str):
         self._validate(name, desc)
         self._repo.add(name, desc)

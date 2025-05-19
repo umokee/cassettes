@@ -21,9 +21,12 @@ class PositionManagementPresenter(QObject):
 
     @Slot(int)
     def _on_sel(self, id_position):
-        position = next((p for p in self._position.get_all() if p.id_position == id_position), None)
-        if position:
-            self._view.set_form(position)
+        try:
+            position = self._position.get(id_position)
+            if position:
+                self._view.set_form(position)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(str, str)
     def _on_add(self, name, desc):
@@ -50,7 +53,11 @@ class PositionManagementPresenter(QObject):
             self._show_err(e)
 
     def _refresh(self):
-        self._view.show_table(self._position.get_all())
+        try:
+            positions = self._position.get_all()
+            self._view.show_table(positions)
+        except Exception as e:
+            self._show_err(e)
 
-    def _show_err(self, exc: Exception):
-        QMessageBox.critical(self._view, "Ошибка", str(exc), QMessageBox.StandardButton.Ok)
+    def _show_err(self, e: Exception):
+        QMessageBox.critical(self._view, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

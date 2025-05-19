@@ -7,8 +7,10 @@ from .fine import FineService
 from .genre import GenreService
 from .permission import AccessPolicy
 from .position import PositionService
+from .tariff_type import TariffTypeService
 
 __all__ = [
+    "TariffTypeService",
     "EmployeeService",
     "PositionService",
     "ClientStatusService",

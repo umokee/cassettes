@@ -13,6 +13,9 @@ class FineService:
     def get_all(self) -> Sequence[Fine]:
         return self._repo.list()
 
+    def get(self, id_fine: int) -> Fine | None:
+        return self._repo.get(id_fine)
+
     def add(self, reason: str, amount: str):
         self._validate(reason, amount)
         self._repo.add(reason, float(amount))

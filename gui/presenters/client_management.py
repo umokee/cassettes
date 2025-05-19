@@ -27,14 +27,20 @@ class ClientManagementPresenter(QObject):
 
     def _init_statuses(self):
         if not self._view.is_readonly:
-            statuses = self._status.get_all()
-            self._view.set_statuses(statuses)
+            try:
+                statuses = self._status.get_all()
+                self._view.set_statuses(statuses)
+            except Exception as e:
+                self._show_err(e)
 
     @Slot(int)
     def _on_sel(self, id_client):
-        client = next((c for c in self._client.get_all() if c.id_client == id_client), None)
-        if client:
-            self._view.set_form(client)
+        try:
+            client = self._client.get(id_client)
+            if client:
+                self._view.set_form(client)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(str, str, str, int)
     def _on_add(self, full_name, login, email, id_status):
@@ -53,7 +59,11 @@ class ClientManagementPresenter(QObject):
             self._show_err(e)
 
     def _refresh(self):
-        self._view.show_table(self._client.get_all())
+        try:
+            clients = self._client.get_all()
+            self._view.show_table(clients)
+        except Exception as e:
+            self._show_err(e)
 
-    def _show_err(self, exc: Exception):
-        QMessageBox.critical(self._view, "Ошибка", str(exc), QMessageBox.StandardButton.Ok)
+    def _show_err(self, e: Exception):
+        QMessageBox.critical(self._view, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

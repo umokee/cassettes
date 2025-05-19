@@ -11,6 +11,9 @@ class GenreService:
     def get_all(self) -> Sequence[Genre]:
         return self._repo.list()
 
+    def get(self, id_genre: int) -> Genre | None:
+        return self._repo.get(id_genre)
+
     def add(self, name: str, desc: str):
         self._validate(name, desc)
         self._repo.add(name, desc)

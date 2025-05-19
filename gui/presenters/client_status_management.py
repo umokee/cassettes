@@ -21,9 +21,12 @@ class ClientStatusManagementPresenter(QObject):
 
     @Slot(int)
     def _on_sel(self, id_status):
-        status = next((s for s in self._status.get_all() if s.id_client_status == id_status), None)
-        if status:
-            self._view.set_form(status)
+        try:
+            status = self._status.get(id_status)
+            if status:
+                self._view.set_form(status)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(str, str)
     def _on_add(self, name, desc):
@@ -50,7 +53,11 @@ class ClientStatusManagementPresenter(QObject):
             self._show_err(e)
 
     def _refresh(self):
-        self._view.show_table(self._status.get_all())
+        try:
+            statuses = self._status.get_all()
+            self._view.show_table(statuses)
+        except Exception as e:
+            self._show_err(e)
 
-    def _show_err(self, exc: Exception):
-        QMessageBox.critical(self._view, "Ошибка", str(exc), QMessageBox.StandardButton.Ok)
+    def _show_err(self, e: Exception):
+        QMessageBox.critical(self._view, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

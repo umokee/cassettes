@@ -28,14 +28,20 @@ class CassetteManagementPresenter(QObject):
 
     def _init_genres(self):
         if not self._view.is_readonly:
-            genres = self._genre.get_all()
-            self._view.set_genres(genres)
+            try:
+                genres = self._genre.get_all()
+                self._view.set_genres(genres)
+            except Exception as e:
+                self._show_err(e)
 
     @Slot(int)
     def _on_sel(self, id_cassette: int):
-        cassette = next((c for c in self._cassette.get_all() if c.id_cassette == id_cassette), None)
-        if cassette:
-            self._view.set_form(cassette)
+        try:
+            cassette = self._cassette.get(id_cassette)
+            if cassette:
+                self._view.set_form(cassette)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(str, str, str, list)
     def _on_add(self, title, cond, cost, genres):
@@ -62,7 +68,11 @@ class CassetteManagementPresenter(QObject):
             self._show_err(e)
 
     def _refresh(self):
-        self._view.show_table(self._cassette.get_all())
+        try:
+            cassettes = self._cassette.get_all()
+            self._view.show_table(cassettes)
+        except Exception as e:
+            self._show_err(e)
 
     def _show_err(self, e: Exception):
         QMessageBox.critical(self._view, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

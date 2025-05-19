@@ -8,9 +8,16 @@ from app.config import DB_CONFIG
 
 
 class Database:
-    def __init__(self, autocommit: bool = False):
-        self._conn = psycopg2.connect(**DB_CONFIG)
-        self._conn.autocommit = autocommit
+    def __init__(self):
+        self._conn = None
+        self._connect()
+
+    def _connect(self):
+        try:
+            self._conn = psycopg2.connect(**DB_CONFIG)
+            self._conn.autocommit = False
+        except Exception:
+            self._conn = None
 
     def __enter__(self):
         return self

@@ -43,7 +43,12 @@ ROLE_PERMISSIONS = {
         "PositionManagement": {
             "enabled": True,
             "readonly": False,
-            "label": "Управление должностями",
+            "label": "Управление должностями сотрудников",
+        },
+        "TariffTypeManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление типами тарифов",
         },
     },
     "кассир": {
@@ -81,6 +86,11 @@ ROLE_PERMISSIONS = {
             "enabled": False,
             "readonly": False,
             "label": "Должности",
+        },
+        "TariffTypeManagement": {
+            "enabled": False,
+            "readonly": False,
+            "label": "Типы",
         },
     },
 }

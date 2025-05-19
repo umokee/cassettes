@@ -13,6 +13,9 @@ class CassetteService:
     def get_all(self) -> Sequence[Cassette]:
         return self._repo.list()
 
+    def get(self, id_cassette: int) -> Cassette | None:
+        return self._repo.get(id_cassette)
+
     def add(self, title: str, cond: str, cost: str, genres: list[int]):
         self._validate(title, cost)
         self._repo.add(title, cond, float(cost), genres)

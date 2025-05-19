@@ -5,8 +5,10 @@ from .employee_table_model import EmployeeTableModel
 from .fine_table_model import FineTableModel
 from .genre_table_model import GenreTableModel
 from .position_table_model import PositionTableModel
+from .tariff_type_table_model import TariffTypeTableModel
 
 __all__ = [
+    "TariffTypeTableModel",
     "EmployeeTableModel",
     "PositionTableModel",
     "ClientStatusTableModel",

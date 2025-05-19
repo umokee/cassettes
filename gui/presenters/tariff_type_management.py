@@ -1,15 +1,15 @@
 from PySide6.QtCore import QObject, Slot
 from PySide6.QtWidgets import QMessageBox
 
-from app.services import FineService
-from gui.views import FineManagementView
+from app.services import TariffTypeService
+from gui.views import TariffTypeManagementView
 
 
-class FineManagementPresenter(QObject):
-    def __init__(self, view: FineManagementView, fine_service: FineService):
+class TariffTypeManagementPresenter(QObject):
+    def __init__(self, view: TariffTypeManagementView, type_service: TariffTypeService):
         super().__init__()
         self._view = view
-        self._fine = fine_service
+        self._type = type_service
         self._connect_signals()
         self._refresh()
 
@@ -20,42 +20,42 @@ class FineManagementPresenter(QObject):
         self._view.sel_changed.connect(self._on_sel)
 
     @Slot(int)
-    def _on_sel(self, id_fine):
+    def _on_sel(self, id_type):
         try:
-            fine = self._fine.get(id_fine)
-            if fine:
-                self._view.set_form(fine)
+            type = self._type.get(id_type)
+            if type:
+                self._view.set_form(type)
         except Exception as e:
             self._show_err(e)
 
     @Slot(str, str)
-    def _on_add(self, reason, amount):
+    def _on_add(self, name, desc):
         try:
-            self._fine.add(reason, amount)
+            self._type.add(name, desc)
             self._refresh()
         except Exception as e:
             self._show_err(e)
 
     @Slot(int)
-    def _on_del(self, id_fine):
+    def _on_del(self, id_type):
         try:
-            self._fine.delete(id_fine)
+            self._type.delete(id_type)
             self._refresh()
         except Exception as e:
             self._show_err(e)
 
     @Slot(int, str, str)
-    def _on_upd(self, id_fine, reason, amount):
+    def _on_upd(self, id_type, name, desc):
         try:
-            self._fine.update(id_fine, reason, amount)
+            self._type.update(id_type, name, desc)
             self._refresh()
         except Exception as e:
             self._show_err(e)
 
     def _refresh(self):
         try:
-            fines = self._fine.get_all()
-            self._view.show_table(fines)
+            types = self._type.get_all()
+            self._view.show_table(types)
         except Exception as e:
             self._show_err(e)
 

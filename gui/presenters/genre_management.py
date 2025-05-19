@@ -21,9 +21,12 @@ class GenreManagementPresenter(QObject):
 
     @Slot(int)
     def _on_sel(self, id_genre):
-        genre = next((g for g in self._genre.get_all() if g.id_genre == id_genre), None)
-        if genre:
-            self._view.set_form(genre)
+        try:
+            genre = self._genre.get(id_genre)
+            if genre:
+                self._view.set_form(genre)
+        except Exception as e:
+            self._show_err(e)
 
     @Slot(str, str)
     def _on_add(self, name, desc):
@@ -50,7 +53,11 @@ class GenreManagementPresenter(QObject):
             self._show_err(e)
 
     def _refresh(self):
-        self._view.show_table(self._genre.get_all())
+        try:
+            genres = self._genre.get_all()
+            self._view.show_table(genres)
+        except Exception as e:
+            self._show_err(e)
 
-    def _show_err(self, exc: Exception):
-        QMessageBox.critical(self._view, "Ошибка", str(exc), QMessageBox.StandardButton.Ok)
+    def _show_err(self, e: Exception):
+        QMessageBox.critical(self._view, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

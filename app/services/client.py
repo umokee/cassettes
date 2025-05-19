@@ -11,6 +11,9 @@ class ClientService:
     def get_all(self) -> Sequence[Client]:
         return self._repo.list()
 
+    def get(self, id_client: int) -> Client | None:
+        return self._repo.get(id_client)
+
     def add(self, full_name: str, login: str, email: str, id_status: int):
         self._validate(full_name, login, email)
         self._repo.add(full_name, login, email, id_status)

@@ -7,8 +7,10 @@ from .fine_management import FineManagementView
 from .genre_management import GenreManagementView
 from .main_window import MainWindow
 from .position_management import PositionManagementView
+from .tariff_type_management import TariffTypeManagementView
 
 __all__ = [
+    "TariffTypeManagementView",
     "EmployeeManagementView",
     "PositionManagementView",
     "ClientStatusManagementView",

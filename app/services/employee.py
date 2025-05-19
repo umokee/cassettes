@@ -11,6 +11,9 @@ class EmployeeService:
     def get_all(self) -> Sequence[Employee]:
         return self._repo.list()
 
+    def get(self, id_employee: int) -> Employee | None:
+        return self._repo.get(id_employee)
+
     def add(self, full_name: str, login: str, password: str, email: str, id_position: int):
         self._validate(full_name, login, password, email)
         self._repo.add(full_name, login, password, email, id_position)
