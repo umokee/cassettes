@@ -8,6 +8,7 @@ from app.services import (
     FineService,
     GenreService,
     PositionService,
+    RentalService,
     TariffService,
     TariffTypeService,
 )
@@ -20,6 +21,7 @@ from data.repo import (
     FineRepository,
     GenreRepository,
     PositionRepository,
+    RentalRepository,
     TariffRepository,
     TariffTypeRepository,
 )
@@ -31,6 +33,7 @@ from gui.presenters import (
     FineManagementPresenter,
     GenreManagementPresenter,
     PositionManagementPresenter,
+    RentalManagementPresenter,
     TariffManagementPresenter,
     TariffTypeManagementPresenter,
 )
@@ -44,6 +47,7 @@ from gui.views import (
     MainWindow,
     PositionManagementView,
     ProvisionConditionDialog,
+    RentalManagementView,
     TariffManagementView,
     TariffTypeManagementView,
 )
@@ -85,6 +89,10 @@ SECTIONS = {
         "view": TariffManagementView,
         "presenter": "tariff_management",
     },
+    "RentalManagement": {
+        "view": RentalManagementView,
+        "presenter": "rental_management",
+    },
 }
 
 
@@ -103,6 +111,7 @@ class Container:
         self.position_repo = PositionRepository(self.db)
         self.tariff_type_repo = TariffTypeRepository(self.db)
         self.taiff_repo = TariffRepository(self.db)
+        self.rental_repo = RentalRepository(self.db)
 
         self.cassette_service = CassetteService(self.cassette_repo)
         self.genre_service = GenreService(self.genre_repo)
@@ -113,7 +122,8 @@ class Container:
         self.position_service = PositionService(self.position_repo)
         self.employee_service = EmployeeService(self.employee_repo)
         self.tariff_type_service = TariffTypeService(self.tariff_type_repo)
-        self.taiff_service = TariffService(self.taiff_repo)
+        self.tariff_service = TariffService(self.taiff_repo)
+        self.rental_service = RentalService(self.rental_repo)
 
     def cassette_management(self, view: CassetteManagementView):
         return CassetteManagementPresenter(view, self.cassette_service, self.genre_service)
@@ -143,14 +153,24 @@ class Container:
         return TariffManagementPresenter(
             view,
             ProvisionConditionDialog(),
-            self.taiff_service,
+            self.tariff_service,
             self.tariff_type_service,
             self.genre_service,
         )
 
+    def rental_management(self, view: RentalManagementView):
+        return RentalManagementPresenter(
+            view,
+            self.rental_service,
+            self.client_service,
+            self.cassette_service,
+            self.tariff_service,
+            self._current_employee.id_employee,
+        )
+
     def main_window(self, employee) -> MainWindow:
-        role = employee.position
-        policy = AccessPolicy(role)
+        self._current_employee = employee
+        policy = AccessPolicy(employee.position)
 
         self.views = {}
         self.presenters = {}

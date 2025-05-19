@@ -8,10 +8,12 @@ from .genre_management import GenreManagementView
 from .main_window import MainWindow
 from .position_management import PositionManagementView
 from .provision_condition import ProvisionConditionDialog
+from .rental_management import RentalManagementView
 from .tariff_management import TariffManagementView
 from .tariff_type_management import TariffTypeManagementView
 
 __all__ = [
+    "RentalManagementView",
     "ProvisionConditionDialog",
     "TariffManagementView",
     "TariffTypeManagementView",

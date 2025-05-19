@@ -7,10 +7,12 @@ from .fine import FineService
 from .genre import GenreService
 from .permission import AccessPolicy
 from .position import PositionService
+from .rental import RentalService
 from .tariff import TariffService
 from .tariff_type import TariffTypeService
 
 __all__ = [
+    "RentalService",
     "TariffService",
     "TariffTypeService",
     "EmployeeService",

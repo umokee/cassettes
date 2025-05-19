@@ -112,18 +112,16 @@ class ProvisionConditionDialog(QDialog):
         genres = self.genre_input.currentData() or None
         weekdays = self.weekdays_input.currentData() or None
         dates = None
-        if self.date_from.date().isValid() and self.date_to.date().isValid():
+        if self.start_date.date().isValid() and self.end_date.date().isValid():
             dates = DateRange(
                 start=self.start_date.date().toString("yyyy-MM-dd"),
                 end=self.end_date.date().toString("yyyy-MM-dd"),
             )
         times = None
-        if self.time_from.time().isValid() and self.time_to.time().isValid():
-            times = (
-                TimeRange(
+        if self.time_start.time().isValid() and self.time_end.time().isValid():
+            times = TimeRange(
                     start=self.time_start.time().toString("HH:mm"),
                     end=self.time_end.time().toString("HH:mm"),
-                ),
             )
 
         return TariffCondition(count, genres, dates, weekdays, times)

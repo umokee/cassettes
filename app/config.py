@@ -55,6 +55,11 @@ ROLE_PERMISSIONS = {
             "readonly": False,
             "label": "Управление тарифами",
         },
+        "RentalManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Аренды",
+        },
     },
     "кассир": {
         "CassetteManagement": {
@@ -101,6 +106,11 @@ ROLE_PERMISSIONS = {
             "enabled": True,
             "readonly": True,
             "label": "Тарифы",
+        },
+        "RentalManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Аренды",
         },
     },
 }

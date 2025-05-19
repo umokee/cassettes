@@ -13,6 +13,9 @@ class CassetteService:
     def get_all(self) -> Sequence[Cassette]:
         return self._repo.list()
 
+    def list_available(self) -> Sequence[Cassette]:
+        return self._repo.list_available()
+
     def get(self, id_cassette: int) -> Cassette | None:
         return self._repo.get(id_cassette)
 

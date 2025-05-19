@@ -26,6 +26,30 @@ class CassetteRepository:
             result.append(c)
         return result
 
+    def list_available(self) -> Sequence[Cassette]:
+        sql = """
+            SELECT c.id_cassette,
+                   c.title,
+                   c.condition,
+                   c.rental_cost,
+                   COALESCE(string_agg(g.name, ', ' ORDER BY g.name), '') AS genres
+            FROM cassette c
+            LEFT JOIN cassette_genre cg ON cg.id_cassette = c.id_cassette
+            LEFT JOIN genre         g  ON g.id_genre      = cg.id_genre
+            LEFT JOIN rental        r  ON r.cassette_id_cassette = c.id_cassette
+                                       AND r.rental_status = 'В процессе'
+            WHERE r.id_rental IS NULL
+            GROUP BY c.id_cassette
+            ORDER BY c.id_cassette;
+        """
+        rows = self._db.fetch_all(sql)
+        result = []
+        for row in rows:                       # здесь уже 5 столбцов
+            c = Cassette.from_row(row)
+            c.genre_ids = self._load_genres_for(c.id_cassette)
+            result.append(c)
+        return result
+
     def get(self, id_cassette: int) -> Cassette | None:
         sql = """
             SELECT c.id_cassette, c.title, c.condition, c.rental_cost,
@@ -104,3 +128,16 @@ class CassetteRepository:
                 VALUES (%s, %s);
             """
             self._db.execute_many(sql, [(id_cassette, g) for g in genres])
+
+
+    def _fetch_with_genres(self, sql: str, *params):
+        """
+        Выполняет запрос, затем подгружает genre_ids для каждой кассеты.
+        """
+        rows = self._db.fetch_all(sql, *params)
+        result = []
+        for row in rows:
+            c = Cassette.from_row(row)
+            c.genre_ids = self._load_genres_for(c.id_cassette)
+            result.append(c)
+        return result
