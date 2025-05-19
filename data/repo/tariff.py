@@ -10,9 +10,9 @@ class TariffRepository:
 
     def list(self) -> Sequence[Tariff]:
         sql = """
-            SELECT t.id_tariff, t.name, t.coefficient, t.provision_conditionsions, tt.name
+            SELECT t.id_tariff, t.name, t.coefficient, t.provision_conditions, tt.name
             FROM tariff t
-            JOIN tariff_type tt ON tt.id_tariff_type = t.id_tariff_type
+            JOIN tariff_type tt ON tt.id_tariff_type=t.id_tariff_type
             ORDER BY t.id_tariff;
         """
         rows = self._db.fetch_all(sql)
@@ -22,8 +22,8 @@ class TariffRepository:
         sql = """
             SELECT t.id_tariff, t.name, t.coefficient, t.provision_conditions, tt.name
             FROM tariff t
-            JOIN tariff_type tt ON tt.id_tariff_type = t.id_tariff_type
-            WHERE t.id_tariff = %s;
+            JOIN tariff_type tt ON tt.id_tariff_type=t.id_tariff_type
+            WHERE t.id_tariff=%s;
         """
         row = self._db.fetch_one(sql, id_tariff)
         return Tariff.from_row(row) if row else None
@@ -45,14 +45,14 @@ class TariffRepository:
     ):
         sql = """
             UPDATE tariff
-            SET name = %s, coefficient = %s, provision_conditions = %s, id_tariff_type = %s
-            WHERE id_tariff = %s;
+            SET name=%s, coefficient=%s, provision_conditions=%s, id_tariff_type=%s
+            WHERE id_tariff=%s;
         """
         self._db.execute(sql, name, coefficient, condition.to_json(), id_tariff_type, id_tariff)
 
     def delete(self, id_tariff: int):
         sql = """
             DELETE FROM tariff
-            WHERE id_tariff = %s;
+            WHERE id_tariff=%s;
         """
         self._db.execute(sql, id_tariff)

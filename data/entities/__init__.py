@@ -6,10 +6,12 @@ from .fine import Fine
 from .genre import Genre
 from .position import Position
 from .tariff import Tariff
-from .tariff_condition import TariffCondition
+from .tariff_condition import DateRange, TariffCondition, TimeRange
 from .tariff_type import TariffType
 
 __all__ = [
+    "DateRange",
+    "TimeRange",
     "TariffType",
     "TariffCondition",
     "Tariff",

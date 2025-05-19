@@ -8,6 +8,7 @@ from app.services import (
     FineService,
     GenreService,
     PositionService,
+    TariffService,
     TariffTypeService,
 )
 from data import Database
@@ -19,6 +20,7 @@ from data.repo import (
     FineRepository,
     GenreRepository,
     PositionRepository,
+    TariffRepository,
     TariffTypeRepository,
 )
 from gui.presenters import (
@@ -29,6 +31,7 @@ from gui.presenters import (
     FineManagementPresenter,
     GenreManagementPresenter,
     PositionManagementPresenter,
+    TariffManagementPresenter,
     TariffTypeManagementPresenter,
 )
 from gui.views import (
@@ -40,6 +43,8 @@ from gui.views import (
     GenreManagementView,
     MainWindow,
     PositionManagementView,
+    ProvisionConditionDialog,
+    TariffManagementView,
     TariffTypeManagementView,
 )
 
@@ -76,6 +81,10 @@ SECTIONS = {
         "view": TariffTypeManagementView,
         "presenter": "tariff_type_management",
     },
+    "TariffManagement": {
+        "view": TariffManagementView,
+        "presenter": "tariff_management",
+    },
 }
 
 
@@ -93,6 +102,7 @@ class Container:
         self.status_repo = ClientStatusRepository(self.db)
         self.position_repo = PositionRepository(self.db)
         self.tariff_type_repo = TariffTypeRepository(self.db)
+        self.taiff_repo = TariffRepository(self.db)
 
         self.cassette_service = CassetteService(self.cassette_repo)
         self.genre_service = GenreService(self.genre_repo)
@@ -103,6 +113,7 @@ class Container:
         self.position_service = PositionService(self.position_repo)
         self.employee_service = EmployeeService(self.employee_repo)
         self.tariff_type_service = TariffTypeService(self.tariff_type_repo)
+        self.taiff_service = TariffService(self.taiff_repo)
 
     def cassette_management(self, view: CassetteManagementView):
         return CassetteManagementPresenter(view, self.cassette_service, self.genre_service)
@@ -127,6 +138,15 @@ class Container:
 
     def tariff_type_management(self, view: TariffTypeManagementView):
         return TariffTypeManagementPresenter(view, self.tariff_type_service)
+
+    def tariff_management(self, view: TariffManagementView):
+        return TariffManagementPresenter(
+            view,
+            ProvisionConditionDialog(),
+            self.taiff_service,
+            self.tariff_type_service,
+            self.genre_service,
+        )
 
     def main_window(self, employee) -> MainWindow:
         role = employee.position

@@ -7,9 +7,13 @@ from .fine_management import FineManagementView
 from .genre_management import GenreManagementView
 from .main_window import MainWindow
 from .position_management import PositionManagementView
+from .provision_condition import ProvisionConditionDialog
+from .tariff_management import TariffManagementView
 from .tariff_type_management import TariffTypeManagementView
 
 __all__ = [
+    "ProvisionConditionDialog",
+    "TariffManagementView",
     "TariffTypeManagementView",
     "EmployeeManagementView",
     "PositionManagementView",

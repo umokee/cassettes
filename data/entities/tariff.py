@@ -15,7 +15,7 @@ class Tariff:
     @classmethod
     def from_row(cls, row: tuple[Any]) -> "Tariff":
         if len(row) == 5:
-            id_tariff, name, coefficient, condition_json, type_name = row
-            condition = TariffCondition.from_json(condition_json)
-            return cls(id_tariff, name, coefficient, condition, type_name)
+            id_tariff, name, coefficient, condition, type_name = row
+            cond = TariffCondition.from_json(condition)
+            return cls(id_tariff, name, coefficient, cond, type_name)
         raise ValueError("Недопустимая строка для тарифа")

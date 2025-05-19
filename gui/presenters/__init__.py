@@ -5,9 +5,11 @@ from .employee_management import EmployeeManagementPresenter
 from .fine_management import FineManagementPresenter
 from .genre_management import GenreManagementPresenter
 from .position_management import PositionManagementPresenter
+from .tariff_management import TariffManagementPresenter
 from .tariff_type_management import TariffTypeManagementPresenter
 
 __all__ = [
+    "TariffManagementPresenter",
     "TariffTypeManagementPresenter",
     "EmployeeManagementPresenter",
     "PositionManagementPresenter",

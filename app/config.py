@@ -50,6 +50,11 @@ ROLE_PERMISSIONS = {
             "readonly": False,
             "label": "Управление типами тарифов",
         },
+        "TariffManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление тарифами",
+        },
     },
     "кассир": {
         "CassetteManagement": {
@@ -91,6 +96,11 @@ ROLE_PERMISSIONS = {
             "enabled": False,
             "readonly": False,
             "label": "Типы",
+        },
+        "TariffManagement": {
+            "enabled": True,
+            "readonly": True,
+            "label": "Тарифы",
         },
     },
 }
