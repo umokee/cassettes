@@ -35,6 +35,16 @@ ROLE_PERMISSIONS = {
             "readonly": False,
             "label": "Управление статусами клиентов",
         },
+        "EmployeeManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление сотрудниками",
+        },
+        "PositionManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Управление должностями",
+        },
     },
     "кассир": {
         "CassetteManagement": {
@@ -61,6 +71,16 @@ ROLE_PERMISSIONS = {
             "enabled": False,
             "readonly": False,
             "label": "Статусы клиентов",
+        },
+        "EmployeeManagement": {
+            "enabled": False,
+            "readonly": False,
+            "label": "Сотрудники",
+        },
+        "PositionManagement": {
+            "enabled": False,
+            "readonly": False,
+            "label": "Должности",
         },
     },
 }

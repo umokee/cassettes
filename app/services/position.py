@@ -1,26 +1,26 @@
 from collections.abc import Sequence
 
-from data.entities import ClientStatus
-from data.repo import ClientStatusRepository
+from data.entities import Position
+from data.repo import PositionRepository
 
 
-class ClientStatusService:
-    def __init__(self, repo: ClientStatusRepository):
+class PositionService:
+    def __init__(self, repo: PositionRepository):
         self._repo = repo
 
-    def get_all(self) -> Sequence[ClientStatus]:
+    def get_all(self) -> Sequence[Position]:
         return self._repo.list()
 
     def add(self, name: str, desc: str):
         self._validate(name, desc)
         self._repo.add(name, desc)
 
-    def update(self, id_client_status: int, name: str, desc: str):
+    def update(self, id_position: int, name: str, desc: str):
         self._validate(name, desc)
-        self._repo.update(id_client_status, name, desc)
+        self._repo.update(id_position, name, desc)
 
-    def delete(self, id_client_status: int):
-        self._repo.delete(id_client_status)
+    def delete(self, id_position: int):
+        self._repo.delete(id_position)
 
     def _validate(self, name: str, desc: str):
         if not name.strip():

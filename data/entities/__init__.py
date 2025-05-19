@@ -4,5 +4,14 @@ from .client_status import ClientStatus
 from .employee import Employee
 from .fine import Fine
 from .genre import Genre
+from .position import Position
 
-__all__ = ["ClientStatus", "Cassette", "Genre", "Employee", "Fine", "Client"]
+__all__ = [
+    "Position",
+    "ClientStatus",
+    "Cassette",
+    "Genre",
+    "Employee",
+    "Fine",
+    "Client",
+]

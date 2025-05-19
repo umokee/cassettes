@@ -73,12 +73,14 @@ class CassetteManagementView(QWidget):
             add_btn = QPushButton("Добавить кассету")
             del_btn = QPushButton("Удалить кассету")
             upd_btn = QPushButton("Изменить кассету")
-            for b in (add_btn, del_btn, upd_btn):
+            clr_btn = QPushButton("Очистить поля")
+            for b in (add_btn, del_btn, upd_btn, clr_btn):
                 btn_box.addWidget(b)
 
             add_btn.clicked.connect(self._on_add_click)
             del_btn.clicked.connect(self._on_del_click)
             upd_btn.clicked.connect(self._on_upd_click)
+            clr_btn.clicked.connect(self._clear)
 
             top = QHBoxLayout()
             top.addLayout(form, stretch=3)
@@ -150,6 +152,7 @@ class CassetteManagementView(QWidget):
         self.cost_input.clear()
         self.cond_input.setCurrentIndex(0)
         self.genre_input.setCurrentIndexes([])
+        self.table.clearSelection()
 
     def set_genres(self, genres: list[Genre]):
         self.genre_input.clear()

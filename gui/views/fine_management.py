@@ -62,12 +62,14 @@ class FineManagementView(QWidget):
             add_btn = QPushButton("Добавить штраф")
             del_btn = QPushButton("Удалить штраф")
             upd_btn = QPushButton("Изменить штраф")
-            for b in (add_btn, del_btn, upd_btn):
+            clr_btn = QPushButton("Очистить поля")
+            for b in (add_btn, del_btn, upd_btn, clr_btn):
                 btn_box.addWidget(b)
 
             add_btn.clicked.connect(self._on_add_click)
             del_btn.clicked.connect(self._on_del_click)
             upd_btn.clicked.connect(self._on_upd_click)
+            clr_btn.clicked.connect(self._clear)
 
             top = QHBoxLayout()
             top.addLayout(form, stretch=3)
@@ -126,6 +128,7 @@ class FineManagementView(QWidget):
     def _clear(self):
         self.reason_input.clear()
         self.amount_input.clear()
+        self.table.clearSelection()
 
     def show_table(self, rows: list[Fine]):
         self._model.set_rows(rows)

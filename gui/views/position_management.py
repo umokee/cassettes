@@ -14,11 +14,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from data.entities import Genre
-from gui.views.models import GenreTableModel
+from data.entities import Position
+from gui.views.models import PositionTableModel
 
 
-class GenreManagementView(QWidget):
+class PositionManagementView(QWidget):
     add_request = Signal(str, str)
     del_request = Signal(int)
     upd_request = Signal(int, str, str)
@@ -39,7 +39,7 @@ class GenreManagementView(QWidget):
         filter.addWidget(self.filter_input, stretch=3)
         filter.addWidget(self.filter_column, stretch=1)
 
-        self._model = GenreTableModel([])
+        self._model = PositionTableModel([])
         self._proxy = QSortFilterProxyModel(self)
         self._proxy.setSourceModel(self._model)
         self._proxy.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
@@ -59,9 +59,9 @@ class GenreManagementView(QWidget):
             form.addRow("Описание:", self.desc_input)
 
             btn_box = QVBoxLayout()
-            add_btn = QPushButton("Добавить жанр")
-            del_btn = QPushButton("Удалить жанр")
-            upd_btn = QPushButton("Изменить жанр")
+            add_btn = QPushButton("Добавить должность")
+            del_btn = QPushButton("Удалить должность")
+            upd_btn = QPushButton("Изменить должность")
             clr_btn = QPushButton("Очистить поля")
             for b in (add_btn, del_btn, upd_btn, clr_btn):
                 btn_box.addWidget(b)
@@ -100,9 +100,9 @@ class GenreManagementView(QWidget):
 
     @Slot()
     def _on_sel_changed(self):
-        genre = self.get_selected_genre()
-        if genre:
-            self.sel_changed.emit(genre.id_genre)
+        position = self.get_selected_position()
+        if position:
+            self.sel_changed.emit(position.id_position)
         else:
             self._clear()
 
@@ -113,16 +113,16 @@ class GenreManagementView(QWidget):
 
     @Slot()
     def _on_del_click(self):
-        genre_id = self.get_selected_id()
-        if genre_id is not None:
-            self.del_request.emit(genre_id)
+        position_id = self.get_selected_id()
+        if position_id is not None:
+            self.del_request.emit(position_id)
             self._clear()
 
     @Slot()
     def _on_upd_click(self):
-        genre_id = self.get_selected_id()
-        if genre_id is not None:
-            self.upd_request.emit(genre_id, self.name_input.text(), self.desc_input.text())
+        position_id = self.get_selected_id()
+        if position_id is not None:
+            self.upd_request.emit(position_id, self.name_input.text(), self.desc_input.text())
             self._clear()
 
     def _clear(self):
@@ -130,24 +130,24 @@ class GenreManagementView(QWidget):
         self.desc_input.clear()
         self.table.clearSelection()
 
-    def show_table(self, rows: list[Genre]):
+    def show_table(self, rows: list[Position]):
         self._model.set_rows(rows)
         self._proxy.invalidateFilter()
 
-    def set_form(self, g: Genre):
-        self.name_input.setText(g.name)
-        self.desc_input.setText(g.description)
+    def set_form(self, p: Position):
+        self.name_input.setText(p.name)
+        self.desc_input.setText(p.description)
 
     def get_selected_id(self) -> int | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.genre_id_at(row)
+        return self._model.position_id_at(row)
 
-    def get_selected_genre(self) -> Genre | None:
+    def get_selected_position(self) -> Position | None:
         selected = self.table.selectionModel().selectedRows()
         if not selected:
             return None
         row = self._proxy.mapToSource(selected[0]).row()
-        return self._model.genre_at(row)
+        return self._model.position_at(row)

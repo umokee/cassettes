@@ -68,11 +68,13 @@ class ClientManagementView(QWidget):
             btn_box = QVBoxLayout()
             add_btn = QPushButton("Добавить клиента")
             upd_btn = QPushButton("Изменить клиента")
-            for b in (add_btn, upd_btn):
+            clr_btn = QPushButton("Очистить поля")
+            for b in (add_btn, upd_btn, clr_btn):
                 btn_box.addWidget(b)
 
             add_btn.clicked.connect(self._on_add_click)
             upd_btn.clicked.connect(self._on_upd_click)
+            clr_btn.clicked.connect(self._clear)
 
             top = QHBoxLayout()
             top.addLayout(form, stretch=3)
@@ -137,6 +139,7 @@ class ClientManagementView(QWidget):
         self.login_input.clear()
         self.email_input.clear()
         self.status_input.setCurrentIndex(0)
+        self.table.clearSelection()
 
     def show_table(self, rows: list[Client]):
         self._model.set_rows(rows)

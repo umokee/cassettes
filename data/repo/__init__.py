@@ -4,8 +4,10 @@ from .client_status import ClientStatusRepository
 from .employee import EmployeeRepository
 from .fine import FineRepository
 from .genre import GenreRepository
+from .position import PositionRepository
 
 __all__ = [
+    "PositionRepository",
     "ClientStatusRepository",
     "ClientRepository",
     "FineRepository",

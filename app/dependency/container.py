@@ -4,8 +4,10 @@ from app.services import (
     CassetteService,
     ClientService,
     ClientStatusService,
+    EmployeeService,
     FineService,
     GenreService,
+    PositionService,
 )
 from data import Database
 from data.repo import (
@@ -15,21 +17,26 @@ from data.repo import (
     EmployeeRepository,
     FineRepository,
     GenreRepository,
+    PositionRepository,
 )
 from gui.presenters import (
     CassetteManagementPresenter,
     ClientManagementPresenter,
     ClientStatusManagementPresenter,
+    EmployeeManagementPresenter,
     FineManagementPresenter,
     GenreManagementPresenter,
+    PositionManagementPresenter,
 )
 from gui.views import (
     CassetteManagementView,
     ClientManagementView,
     ClientStatusManagementView,
+    EmployeeManagementView,
     FineManagementView,
     GenreManagementView,
     MainWindow,
+    PositionManagementView,
 )
 
 SECTIONS = {
@@ -53,6 +60,14 @@ SECTIONS = {
         "view": ClientStatusManagementView,
         "presenter": "status_management",
     },
+    "EmployeeManagement": {
+        "view": EmployeeManagementView,
+        "presenter": "employee_management",
+    },
+    "PositionManagement": {
+        "view": PositionManagementView,
+        "presenter": "position_management",
+    },
 }
 
 
@@ -68,6 +83,7 @@ class Container:
         self.fine_repo = FineRepository(self.db)
         self.client_repo = ClientRepository(self.db)
         self.status_repo = ClientStatusRepository(self.db)
+        self.position_repo = PositionRepository(self.db)
 
         self.cassette_service = CassetteService(self.cassette_repo)
         self.genre_service = GenreService(self.genre_repo)
@@ -75,6 +91,8 @@ class Container:
         self.fine_service = FineService(self.fine_repo)
         self.client_service = ClientService(self.client_repo)
         self.status_service = ClientStatusService(self.status_repo)
+        self.position_service = PositionService(self.position_repo)
+        self.employee_service = EmployeeService(self.employee_repo)
 
     def cassette_management(self, view: CassetteManagementView):
         return CassetteManagementPresenter(view, self.cassette_service, self.genre_service)
@@ -90,6 +108,12 @@ class Container:
 
     def status_management(self, view: ClientStatusManagementView):
         return ClientStatusManagementPresenter(view, self.status_service)
+
+    def employee_management(self, view: EmployeeManagementView):
+        return EmployeeManagementPresenter(view, self.employee_service, self.position_service)
+
+    def position_management(self, view: PositionManagementView):
+        return PositionManagementPresenter(view, self.position_service)
 
     def main_window(self, employee) -> MainWindow:
         role = employee.position
@@ -110,7 +134,7 @@ class Container:
             presenter = getattr(self, method)(view)
             self.presenters[key] = presenter
 
-            self.labels[key] = policy.get_label(key) or key
+            self.labels[key] = policy.get_label(key)
 
         window = MainWindow(self.views, self.labels)
         window.set_current_employee(employee)
