@@ -7,6 +7,7 @@ from app.services import (
     EmployeeService,
     FineService,
     GenreService,
+    PenaltyAccountingService,
     PositionService,
     RentalService,
     TariffService,
@@ -20,6 +21,7 @@ from data.repo import (
     EmployeeRepository,
     FineRepository,
     GenreRepository,
+    PenaltyAccountingRepository,
     PositionRepository,
     RentalRepository,
     TariffRepository,
@@ -32,6 +34,7 @@ from gui.presenters import (
     EmployeeManagementPresenter,
     FineManagementPresenter,
     GenreManagementPresenter,
+    PenaltyAccountingPresenter,
     PositionManagementPresenter,
     RentalManagementPresenter,
     TariffManagementPresenter,
@@ -45,6 +48,7 @@ from gui.views import (
     FineManagementView,
     GenreManagementView,
     MainWindow,
+    PenaltyAccountingView,
     PositionManagementView,
     ProvisionConditionDialog,
     RentalManagementView,
@@ -53,6 +57,14 @@ from gui.views import (
 )
 
 SECTIONS = {
+    "RentalManagement": {
+        "view": RentalManagementView,
+        "presenter": "rental_management",
+    },
+    "PenaltyAccountingManagement": {
+        "view": PenaltyAccountingView,
+        "presenter": "penalty_management",
+    },
     "CassetteManagement": {
         "view": CassetteManagementView,
         "presenter": "cassette_management",
@@ -65,33 +77,29 @@ SECTIONS = {
         "view": FineManagementView,
         "presenter": "fine_management",
     },
+    "TariffManagement": {
+        "view": TariffManagementView,
+        "presenter": "tariff_management",
+    },
     "ClientManagement": {
         "view": ClientManagementView,
         "presenter": "client_management",
-    },
-    "ClientStatusManagement": {
-        "view": ClientStatusManagementView,
-        "presenter": "status_management",
     },
     "EmployeeManagement": {
         "view": EmployeeManagementView,
         "presenter": "employee_management",
     },
-    "PositionManagement": {
-        "view": PositionManagementView,
-        "presenter": "position_management",
-    },
     "TariffTypeManagement": {
         "view": TariffTypeManagementView,
         "presenter": "tariff_type_management",
     },
-    "TariffManagement": {
-        "view": TariffManagementView,
-        "presenter": "tariff_management",
+    "ClientStatusManagement": {
+        "view": ClientStatusManagementView,
+        "presenter": "status_management",
     },
-    "RentalManagement": {
-        "view": RentalManagementView,
-        "presenter": "rental_management",
+    "PositionManagement": {
+        "view": PositionManagementView,
+        "presenter": "position_management",
     },
 }
 
@@ -112,6 +120,7 @@ class Container:
         self.tariff_type_repo = TariffTypeRepository(self.db)
         self.taiff_repo = TariffRepository(self.db)
         self.rental_repo = RentalRepository(self.db)
+        self.penalty_repo = PenaltyAccountingRepository(self.db)
 
         self.cassette_service = CassetteService(self.cassette_repo)
         self.genre_service = GenreService(self.genre_repo)
@@ -124,6 +133,9 @@ class Container:
         self.tariff_type_service = TariffTypeService(self.tariff_type_repo)
         self.tariff_service = TariffService(self.taiff_repo)
         self.rental_service = RentalService(self.rental_repo)
+        self.penalty_service = PenaltyAccountingService(
+            self.penalty_repo, self.fine_repo, self.rental_repo
+        )
 
     def cassette_management(self, view: CassetteManagementView):
         return CassetteManagementPresenter(view, self.cassette_service, self.genre_service)
@@ -166,6 +178,11 @@ class Container:
             self.cassette_service,
             self.tariff_service,
             self._current_employee.id_employee,
+        )
+
+    def penalty_management(self, view: PenaltyAccountingView):
+        return PenaltyAccountingPresenter(
+            view, self.penalty_service, self.client_service, self.rental_service, self.fine_service
         )
 
     def main_window(self, employee) -> MainWindow:

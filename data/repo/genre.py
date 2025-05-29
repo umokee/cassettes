@@ -10,7 +10,10 @@ class GenreRepository:
 
     def list(self) -> Sequence[Genre]:
         sql = """
-            SELECT id_genre, name, description
+            SELECT
+                id_genre,
+                name,
+                description
             FROM genre
             ORDER BY id_genre;
         """
@@ -19,9 +22,12 @@ class GenreRepository:
 
     def get(self, id_genre: int) -> Genre | None:
         sql = """
-            SELECT id_genre, name, description
+            SELECT
+                id_genre,
+                name,
+                description
             FROM genre
-            WHERE id_genre=%s;
+            WHERE id_genre = %s;
         """
         row = self._db.fetch_one(sql, id_genre)
         return Genre.from_row(row) if row else None
@@ -36,14 +42,15 @@ class GenreRepository:
     def delete(self, id_genre: int):
         sql = """
             DELETE FROM genre
-            WHERE id_genre=%s;
+            WHERE id_genre = %s;
         """
         self._db.execute(sql, id_genre)
 
     def update(self, id_genre: int, name: str, desc: str):
         sql = """
             UPDATE genre
-            SET name=%s, description=%s
-            WHERE id_genre=%s;
+            SET name = %s,
+                description = %s
+            WHERE id_genre = %s;
         """
         self._db.execute(sql, name, desc, id_genre)

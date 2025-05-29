@@ -1,24 +1,26 @@
 from collections.abc import Sequence
 from datetime import date
 
-from data.entities import Rental
+from data.entities import Cassette, Rental, Tariff
 from data.repo import RentalRepository
 
 
 class RentalService:
-    """Минималистичный сервис: CRUD + смена статуса."""
-
     def __init__(self, repo: RentalRepository):
         self._repo = repo
 
-    # ---------- read ----------
-    def list_open(self) -> Sequence[Rental]:
-        return self._repo.list_open()
+    def get_active(self) -> Sequence[Rental]:
+        return self._repo.get_active()
 
     def get(self, id_rental: int) -> Rental | None:
         return self._repo.get(id_rental)
 
-    # ---------- write ----------
+    def get_by_client(self, id_client: int) -> Sequence[Rental]:
+        return self._repo.get_by_client(id_client)
+
+    def calc_cost(self, cassette: Cassette, tarriff: Tariff, days: int) -> float:
+        return cassette.rental_cost * tarriff.coefficient * days
+
     def open_rental(
         self,
         id_client: int,
@@ -35,5 +37,5 @@ class RentalService:
         id_rental: int,
         id_employee_give: int,
         cassette_cond_after: str,
-    ) -> None:
+    ):
         self._repo.close(id_rental, id_employee_give, date.today(), cassette_cond_after)

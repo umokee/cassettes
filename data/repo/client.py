@@ -10,9 +10,16 @@ class ClientRepository:
 
     def list(self) -> Sequence[Client]:
         sql = """
-            SELECT c.id_client, c.full_name, c.login, c.password, c.email, cs.name
+            SELECT
+                c.id_client,
+                c.full_name,
+                c.login,
+                c.password,
+                c.email,
+                cs.name
             FROM client c
-            JOIN client_status cs ON c.id_client_status=cs.id_client_status
+            JOIN client_status cs
+                ON c.id_client_status = cs.id_client_status
             ORDER BY id_client;
         """
         rows = self._db.fetch_all(sql)
@@ -20,10 +27,17 @@ class ClientRepository:
 
     def get(self, id_client: int) -> Client | None:
         sql = """
-            SELECT c.id_client, c.full_name, c.login, c.password, c.email, cs.name
+            SELECT
+                c.id_client,
+                c.full_name,
+                c.login,
+                c.password,
+                c.email,
+                cs.name
             FROM client c
-            JOIN client_status cs ON c.id_client_status=cs.id_client_status
-            WHERE id_client=%s;
+            JOIN client_status cs
+                ON c.id_client_status = cs.id_client_status
+            WHERE id_client = %s;
         """
         row = self._db.fetch_one(sql, id_client)
         return Client.from_row(row) if row else None
@@ -38,15 +52,11 @@ class ClientRepository:
     def update(self, id_client: int, full_name: str, login: str, email: str, id_status: int):
         sql = """
             UPDATE client
-            SET full_name=%s, login=%s, email=%s, id_client_status=%s
-            WHERE id_client=%s;
+            SET full_name = %s,
+                login = %s,
+                email = %s,
+                id_client_status = %s
+            WHERE id_client = %s;
         """
         self._db.execute(sql, full_name, login, email, id_status, id_client)
 
-    def update_password(self, id_client: int, new_password: str):
-        sql = """
-            UPDATE client
-            SET password = %s
-            WHERE id_client = %s
-        """
-        self._db.execute(sql, new_password, id_client)

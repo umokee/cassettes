@@ -10,19 +10,33 @@ class EmployeeRepository:
 
     def auth(self, login: str, password: str) -> Employee | None:
         sql = """
-            SELECT e.id_employee, e.full_name, e.login, e.password, e.email, p.name
+            SELECT
+                e.id_employee,
+                e.full_name,
+                e.login,
+                e.password,
+                e.email,
+                p.name
             FROM employee e
-            JOIN position p ON e.id_position=p.id_position
-            WHERE e.login=%s AND e.password=%s;
+            JOIN position p
+                ON e.id_position = p.id_position
+            WHERE e.login = %s AND e.password = %s;
         """
         row = self._db.fetch_one(sql, login, password)
         return Employee.from_row(row) if row else None
 
     def list(self) -> Sequence[Employee]:
         sql = """
-            SELECT e.id_employee, e.full_name, e.login, e.password, e.email, p.name
+            SELECT
+                e.id_employee,
+                e.full_name,
+                e.login,
+                e.password,
+                e.email,
+                p.name
             FROM employee e
-            JOIN position p ON e.id_position=p.id_position
+            JOIN position p
+                ON e.id_position = p.id_position
             ORDER BY id_employee;
         """
         rows = self._db.fetch_all(sql)
@@ -30,10 +44,17 @@ class EmployeeRepository:
 
     def get(self, id_employee: int) -> Employee | None:
         sql = """
-            SELECT e.id_employee, e.full_name, e.login, e.password, e.email, p.name
+            SELECT
+                e.id_employee,
+                e.full_name,
+                e.login,
+                e.password,
+                e.email,
+                p.name
             FROM employee e
-            JOIN position p ON e.id_position=p.id_position
-            WHERE id_employee=%s;
+            JOIN position p
+                ON e.id_position = p.id_position
+            WHERE id_employee = %s;
         """
         row = self._db.fetch_one(sql, id_employee)
         return Employee.from_row(row) if row else None
@@ -56,7 +77,11 @@ class EmployeeRepository:
     ):
         sql = """
             UPDATE employee
-            SET full_name=%s, login=%s, password=%s, email=%s, id_position=%s
-            WHERE id_employee=%s;
+            SET full_name = %s,
+                login = %s,
+                password = %s,
+                email = %s,
+                id_position = %s
+            WHERE id_employee = %s;
         """
         self._db.execute(sql, full_name, login, password, email, id_position, id_employee)

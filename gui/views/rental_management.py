@@ -19,56 +19,35 @@ from PySide6.QtWidgets import (
 from gui.views.models import RentalTableModel
 
 
-class _ReturnDialog(QDialog):
-    """Небольшой диалог для выбора состояния кассеты при возврате."""
-
-    def __init__(self, parent: QWidget | None = None):
-        super().__init__(parent)
-        self.setWindowTitle("Состояние кассеты после возврата")
-        self.cond_cb = QComboBox()
-        self.cond_cb.addItems(["Хорошее", "Удовлетворительное", "Плохое"])
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
-        lay = QVBoxLayout(self)
-        lay.addWidget(self.cond_cb)
-        lay.addWidget(buttons)
-
-    def result_condition(self) -> str:
-        return self.cond_cb.currentText()
-
-
 class RentalManagementView(QWidget):
-    #             client      cassette    tariff      days
-    open_request = Signal(int, int, int, int)
-    #             id_rental   condition_after
-    close_request = Signal(int, str)
+    opn_request = Signal(int, int, int, int)
+    cls_request = Signal(int, str)
 
     def __init__(self, readonly: bool = False):
         super().__init__()
         self._readonly = readonly
         self._build_ui()
 
-    # ------------------------------------------------------------------ UI
+    @property
+    def is_readonly(self) -> bool:
+        return self._readonly
+
     def _build_ui(self):
         root = QHBoxLayout(self)
 
-        # ---------- левая часть : оформление ----------
         form = QFormLayout()
-        self.client_cb = QComboBox()
-        self.cassette_cb = QComboBox()
-        self.tariff_cb = QComboBox()
-        self.duration_sb = QSpinBox()
-        self.duration_sb.setRange(1, 30)
-        self.exp_return_lbl = QLabel()
+        self.client_input = QComboBox()
+        self.cassette_input = QComboBox()
+        self.tariff_input = QComboBox()
+        self.duration_input = QSpinBox()
+        self.duration_input.setRange(1, 30)
+        self.return_label = QLabel()
 
-        form.addRow("Клиент:", self.client_cb)
-        form.addRow("Кассета:", self.cassette_cb)
-        form.addRow("Тариф:", self.tariff_cb)
-        form.addRow("Дней:", self.duration_sb)
-        form.addRow("Ожидаемый возврат:", self.exp_return_lbl)
+        form.addRow("Клиент:", self.client_input)
+        form.addRow("Кассета:", self.cassette_input)
+        form.addRow("Тариф:", self.tariff_input)
+        form.addRow("Дней:", self.duration_input)
+        form.addRow("Ожидаемый возврат:", self.return_label)
 
         self.open_btn = QPushButton("Оформить аренду")
         self.open_btn.clicked.connect(self._on_open_click)
@@ -78,11 +57,9 @@ class RentalManagementView(QWidget):
         left.addWidget(self.open_btn)
         left.addStretch()
 
-        # обновляем дату при смене дней
-        self.duration_sb.valueChanged.connect(self._update_expected_return)
-        self._update_expected_return(self.duration_sb.value())
+        self.duration_input.valueChanged.connect(self._update_expected_return)
+        self._update_expected_return(self.duration_input.value())
 
-        # ---------- правая часть : текущие аренды ----------
         self._model = RentalTableModel([])
         self.table = QTableView()
         self.table.setModel(self._model)
@@ -90,7 +67,6 @@ class RentalManagementView(QWidget):
         self.table.doubleClicked.connect(self._on_double_click)
 
         right = QVBoxLayout()
-        right.addWidget(QLabel("Активные аренды (двойной клик — возврат)"))
         right.addWidget(self.table)
 
         root.addLayout(left, 2)
@@ -98,10 +74,10 @@ class RentalManagementView(QWidget):
 
         if self._readonly:
             for w in (
-                self.client_cb,
-                self.cassette_cb,
-                self.tariff_cb,
-                self.duration_sb,
+                self.client_input,
+                self.cassette_input,
+                self.tariff_input,
+                self.duration_input,
                 self.open_btn,
             ):
                 w.setEnabled(False)
@@ -109,33 +85,32 @@ class RentalManagementView(QWidget):
             self.table.setSelectionMode(QAbstractItemView.NoSelection)
             self.table.doubleClicked.disconnect()
 
-    # ---------------------------------------------------------------- public
-    def fill_clients(self, rows):
-        self.client_cb.clear()
+    def set_clients(self, rows):
+        self.client_input.clear()
         for c in rows:
-            self.client_cb.addItem(c.full_name, c.id_client)
+            self.client_input.addItem(c.full_name, c.id_client)
 
-    def fill_cassettes(self, rows):
-        self.cassette_cb.clear()
+    def set_cassettes(self, rows):
+        self.cassette_input.clear()
         for c in rows:
-            self.cassette_cb.addItem(f"{c.id_cassette}: {c.title}", c.id_cassette)
+            self.cassette_input.addItem(f"{c.id_cassette}: {c.title}", c.id_cassette)
 
-    def fill_tariffs(self, rows):
-        self.tariff_cb.clear()
+    def set_tariffs(self, rows):
+        self.tariff_input.clear()
         for t in rows:
-            self.tariff_cb.addItem(t.name, t.id_tariff)
+            self.tariff_input.addItem(f"{t.name}: {t.coefficient}", t.id_tariff)
 
-    def show_rentals(self, rows):
+    def show_rentals(self, rows, cass_names, client_names):
+        self._model.set_lookups(cass_names, client_names)
         self._model.set_rows(rows)
 
-    # ---------------------------------------------------------------- slots
     @Slot()
     def _on_open_click(self):
-        self.open_request.emit(
-            self.client_cb.currentData(),
-            self.cassette_cb.currentData(),
-            self.tariff_cb.currentData(),
-            self.duration_sb.value(),
+        self.opn_request.emit(
+            self.client_input.currentData(),
+            self.cassette_input.currentData(),
+            self.tariff_input.currentData(),
+            self.duration_input.value(),
         )
 
     @Slot()
@@ -143,13 +118,25 @@ class RentalManagementView(QWidget):
         rid = self._model.rental_at(idx.row()).id_rental
         dlg = _ReturnDialog(self)
         if dlg.exec():
-            self.close_request.emit(rid, dlg.result_condition())
+            self.cls_request.emit(rid, dlg.result_condition())
 
-    # ---------------------------------------------------------------- helpers
     def _update_expected_return(self, days: int):
-        self.exp_return_lbl.setText((date.today() + timedelta(days=days)).strftime("%d.%m.%Y"))
+        self.return_label.setText((date.today() + timedelta(days=days)).strftime("%d.%m.%Y"))
 
-    # read-only флаг наружу (используют презентеры / policy)
-    @property
-    def is_readonly(self) -> bool:
-        return self._readonly
+
+class _ReturnDialog(QDialog):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.cond_input = QComboBox()
+        self.cond_input.addItems(["Хорошее", "Удовлетворительное", "Плохое"])
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        lay = QVBoxLayout(self)
+        lay.addWidget(self.cond_input)
+        lay.addWidget(buttons)
+
+    def result_condition(self) -> str:
+        return self.cond_input.currentText()

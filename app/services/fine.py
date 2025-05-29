@@ -11,7 +11,7 @@ class FineService:
         self._number_regex = re.compile(r"^\d+(\.\d+)?$")
 
     def get_all(self) -> Sequence[Fine]:
-        return self._repo.list()
+        return self._repo.get_all()
 
     def get(self, id_fine: int) -> Fine | None:
         return self._repo.get(id_fine)

@@ -8,9 +8,12 @@ class FineRepository:
     def __init__(self, db: Database):
         self._db = db
 
-    def list(self) -> Sequence[Fine]:
+    def get_all(self) -> Sequence[Fine]:
         sql = """
-            SELECT id_fine, reason, amount
+            SELECT
+                id_fine,
+                reason,
+                amount
             FROM fine
             ORDER BY id_fine;
         """
@@ -19,9 +22,12 @@ class FineRepository:
 
     def get(self, id_fine: int) -> Fine | None:
         sql = """
-            SELECT id_fine, reason, amount
+            SELECT
+                id_fine,
+                reason,
+                amount
             FROM fine
-            WHERE id_fine=%s;
+            WHERE id_fine = %s;
         """
         row = self._db.fetch_one(sql, id_fine)
         return Fine.from_row(row) if row else None
@@ -36,14 +42,15 @@ class FineRepository:
     def delete(self, id_fine: int):
         sql = """
             DELETE FROM fine
-            WHERE id_fine=%s;
+            WHERE id_fine = %s;
         """
         self._db.execute(sql, id_fine)
 
     def update(self, id_fine: int, reason: str, amount: float):
         sql = """
             UPDATE fine
-            SET reason=%s, amount=%s
-            WHERE id_fine=%s;
+            SET reason = %s,
+                amount = %s
+            WHERE id_fine = %s;
         """
         self._db.execute(sql, reason, amount, id_fine)

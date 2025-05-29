@@ -22,12 +22,10 @@ class MainWindow(QMainWindow):
         self._views = views
 
         self._stack = QStackedWidget()
-        self._stack.addWidget(QLabel("Главная"))
         for view in views.values():
             self._stack.addWidget(view)
 
         self._nav_list = QListWidget()
-        self._nav_list.addItems(["Главная"])
         for section in views:
             self._nav_list.addItem(labels.get(section, section))
 
@@ -35,7 +33,6 @@ class MainWindow(QMainWindow):
 
         self._user_label = QLabel("Пользователь")
         self._user_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._user_label.setStyleSheet("padding: 10px; font-weight: bold;")
 
         nav_content = QWidget()
         nav_layout = QVBoxLayout(nav_content)

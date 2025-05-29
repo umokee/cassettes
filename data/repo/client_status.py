@@ -10,7 +10,10 @@ class ClientStatusRepository:
 
     def list(self) -> Sequence[ClientStatus]:
         sql = """
-            SELECT id_client_status, name, description
+            SELECT
+                id_client_status,
+                name,
+                description
             FROM client_status
             ORDER BY id_client_status;
         """
@@ -19,9 +22,12 @@ class ClientStatusRepository:
 
     def get(self, id_client_status: int) -> ClientStatus | None:
         sql = """
-            SELECT id_client_status, name, description
+            SELECT
+                id_client_status,
+                name,
+                description
             FROM client_status
-            WHERE id_client_status=%s;
+            WHERE id_client_status = %s;
         """
         row = self._db.fetch_one(sql, id_client_status)
         return ClientStatus.from_row(row) if row else None
@@ -36,14 +42,15 @@ class ClientStatusRepository:
     def delete(self, id_client_status: int):
         sql = """
             DELETE FROM client_status
-            WHERE id_client_status=%s;
+            WHERE id_client_status = %s;
         """
         self._db.execute(sql, id_client_status)
 
     def update(self, id_client_status: int, name: str, desc: str):
         sql = """
             UPDATE client_status
-            SET name=%s, description=%s
-            WHERE id_client_status=%s;
+            SET name = %s,
+                description = %s
+            WHERE id_client_status = %s;
         """
         self._db.execute(sql, name, desc, id_client_status)

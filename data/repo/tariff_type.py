@@ -10,7 +10,10 @@ class TariffTypeRepository:
 
     def list(self) -> Sequence[TariffType]:
         sql = """
-            SELECT id_tariff_type, name, description
+            SELECT
+                id_tariff_type,
+                name,
+                description
             FROM tariff_type
             ORDER BY id_tariff_type;
         """
@@ -19,9 +22,12 @@ class TariffTypeRepository:
 
     def get(self, id_tariff_type: int) -> TariffType | None:
         sql = """
-            SELECT id_tariff_type, name, description
+            SELECT
+                id_tariff_type,
+                name,
+                description
             FROM tariff_type
-            WHERE id_tariff_type=%s;
+            WHERE id_tariff_type = %s;
         """
         row = self._db.fetch_one(sql, id_tariff_type)
         return TariffType.from_row(row) if row else None
@@ -43,7 +49,8 @@ class TariffTypeRepository:
     def update(self, id_tariff_type: int, name: str, desc: str):
         sql = """
             UPDATE tariff_type
-            SET name=%s, description=%s
-            WHERE id_tariff_type=%s;
+            SET name = %s,
+                description = %s
+            WHERE id_tariff_type = %s;
         """
         self._db.execute(sql, name, desc, id_tariff_type)

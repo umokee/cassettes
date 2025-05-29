@@ -39,4 +39,4 @@ class Rental:
     def from_row(cls, row: tuple[Any]) -> "Rental":
         if len(row) == 11:
             return cls(*row)
-        raise ValueError("row size mismatch for Rental")
+        raise ValueError("Недопустимая строка для аренды")

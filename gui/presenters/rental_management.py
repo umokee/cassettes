@@ -30,67 +30,77 @@ class RentalManagementPresenter(QObject):
         self._tariffs = tariff_svc
         self._emp_id = employee_id
 
-        self._bind()
+        self._connect_signals()
         self._fill_lists()
         self._refresh_table()
 
-    # ---------- util ----------
-    def _bind(self):
-        self._v.open_request.connect(self._on_open)
-        self._v.close_request.connect(self._on_close)
-        self._v.cassette_cb.currentIndexChanged.connect(self._on_cassette_changed)
+    def _connect_signals(self):
+        self._v.opn_request.connect(self._on_open)
+        self._v.cls_request.connect(self._on_close)
+        self._v.cassette_input.currentIndexChanged.connect(self._on_cassette_changed)
 
     def _fill_lists(self):
-        self._v.fill_clients(self._clients.get_all())
-        free = self._cassettes.list_available()
-        self._v.fill_cassettes(free)
-        if free:
-            self._update_tariffs(free[0].id_cassette)
+        if self._v._readonly:
+            return
+        try:
+            clients = self._clients.get_all()
+            cassettes = self._cassettes.list_available()
+            self._v.set_clients(clients)
+            self._v.set_cassettes(cassettes)
+            if cassettes:
+                self._update_tariffs(cassettes[0].id_cassette)
+        except Exception as e:
+            self._show_err(e)
 
     def _refresh_table(self):
-        self._v.show_rentals(self._rentals.list_open())
+        try:
+            rentals = self._rentals.get_active()
+            cass_names = {c.id_cassette: c.title for c in self._cassettes.get_all()}
+            client_names = {p.id_client: p.full_name for p in self._clients.get_all()}
+            self._v.show_rentals(rentals, cass_names, client_names)
+        except Exception as e:
+            self._show_err(e)
 
     def _update_tariffs(self, cassette_id: int):
-        cass = self._cassettes.get(cassette_id)
-        today = date.today()
+        try:
+            cassette = self._cassettes.get(cassette_id)
+            valid = self._tariffs.filter_for_cassette(cassette, date.today())
+            self._v.set_tariffs(valid)
+        except Exception as e:
+            self._show_err(e)
 
-        valid = []
-        for t in self._tariffs.get_all():
-            c = t.provision_condition
-            if c.genres and not (set(c.genres) & set(cass.genre_ids)):
-                continue
-            if c.weekdays and today.isoweekday() not in c.weekdays:
-                continue
-            if c.dates and not (c.dates.start <= str(today) <= c.dates.end):
-                continue
-            valid.append(t)
-        self._v.fill_tariffs(valid)
-
-    # ---------- slots ----------
     @Slot()
     def _on_cassette_changed(self):
-        cid = self._v.cassette_cb.currentData()
-        if cid:
-            self._update_tariffs(cid)
+        id_cassette = self._v.cassette_input.currentData()
+        if id_cassette:
+            self._update_tariffs(id_cassette)
 
     @Slot(int, int, int, int)
     def _on_open(self, id_client, id_cassette, id_tariff, days):
         try:
             cassette = self._cassettes.get(id_cassette)
             tariff = self._tariffs.get(id_tariff)
-            cost = cassette.rental_cost * tariff.coefficient * days
+            cost = self._rentals.calc_cost(cassette, tariff, days)
 
-            rid = self._rentals.open_rental(id_client, id_cassette, self._emp_id, days, cost)
-            QMessageBox.information(self._v, "Успех", f"Аренда №{rid} оформлена")
+            id_rental = self._rentals.open_rental(id_client, id_cassette, self._emp_id, days, cost)
+            self._show_info("Успех", f"Аренда №{id_rental} оформлена")
             self._refresh_table()
+            self._fill_lists()
         except Exception as e:
-            QMessageBox.critical(self._v, "Ошибка", str(e))
+            self._show_err(e)
 
     @Slot(int, str)
     def _on_close(self, id_rental, cond_after):
         try:
             self._rentals.close_rental(id_rental, self._emp_id, cond_after)
-            QMessageBox.information(self._v, "Готово", "Возврат оформлен")
+            self._show_info("Готово", "Возврат оформлен")
             self._refresh_table()
+            self._fill_lists()
         except Exception as e:
-            QMessageBox.critical(self._v, "Ошибка", str(e))
+            self._show_err(e)
+
+    def _show_info(self, title: str, msg: str):
+        QMessageBox.information(self._v, title, msg)
+
+    def _show_err(self, e: Exception):
+        QMessageBox.critical(self._v, "Ошибка", str(e), QMessageBox.StandardButton.Ok)

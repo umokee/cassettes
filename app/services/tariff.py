@@ -1,7 +1,8 @@
 import re
 from collections.abc import Sequence
+from datetime import date
 
-from data.entities import Tariff, TariffCondition
+from data.entities import Cassette, Tariff, TariffCondition
 from data.repo import TariffRepository
 
 
@@ -16,6 +17,24 @@ class TariffService:
     def get(self, id_tariff: int) -> Tariff | None:
         return self._repo.get(id_tariff)
 
+    def filter_for_cassette(
+        self,
+        cassette: Cassette,
+        today: date | None = None,
+    ) -> Sequence[Tariff]:
+        today = today or date.today()
+        res: list[Tariff] = []
+        for t in self._repo.list():
+            c = t.provision_condition
+            if c.genres and not (set(c.genres) & set(cassette.genre_ids)):
+                continue
+            if c.weekdays and today.isoweekday() not in c.weekdays:
+                continue
+            if c.dates and not (c.dates.start <= str(today) <= c.dates.end):
+                continue
+            res.append(t)
+        return res
+
     def add(self, name: str, coefficient: str, cond: TariffCondition, id_tariff_type: int):
         self._validate(name, coefficient)
         self._repo.add(name, float(coefficient), cond, id_tariff_type)
@@ -24,12 +43,12 @@ class TariffService:
         self,
         id_tariff: int,
         name: str,
-        coefficient: str,
+        coeff: str,
         cond: TariffCondition,
-        id_tariff_type: int,
+        id_type: int,
     ):
-        self._validate(name, coefficient)
-        self._repo.update(id_tariff, name, float(coefficient), cond, id_tariff_type)
+        self._validate(name, coeff)
+        self._repo.update(id_tariff, name, float(coeff), cond, id_type)
 
     def delete(self, id_tariff: int):
         self._repo.delete(id_tariff)
@@ -44,5 +63,5 @@ class TariffService:
             raise ValueError("Коэффициент должен быть числом")
         if float(coefficient) <= 0:
             raise ValueError("Коэффициент должен быть положительным")
-        if float(coefficient) > 5:
-            raise ValueError("Коэффициент слишком большой (макс. 5.00)")
+        if float(coefficient) > 1:
+            raise ValueError("Коэффициент слишком большой (макс. 1.00)")

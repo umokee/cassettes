@@ -1,5 +1,5 @@
 import json
-from dataclasses import asdict, dataclass, is_dataclass
+from dataclasses import asdict, dataclass
 from typing import Any
 
 
@@ -24,70 +24,34 @@ class TariffCondition:
     times: TimeRange | None = None
 
     @classmethod
-    def from_json(cls, value: str | dict[str, Any] | None) -> "TariffCondition":
-        if not value:
+    def from_json(cls, src: str | dict[str, Any] | None) -> "TariffCondition":
+        if not src:
             return cls()
-        if isinstance(value, str):
-            value = json.loads(value)
 
-        def _load(dct, klass):
-            return None if dct is None else klass(**dct)
+        data = json.loads(src) if isinstance(src, str) else src
 
         return cls(
-            value.get("count_max"),
-            value.get("genres"),
-            _load(value.get("dates"), DateRange),
-            value.get("weekdays"),
-            _load(value.get("times"), TimeRange),
+            data.get("count_max"),
+            data.get("genres"),
+            _load_dataclass(DateRange, data.get("dates")),
+            data.get("weekdays"),
+            _load_dataclass(TimeRange, data.get("times")),
         )
 
     def to_json(self) -> str:
-        def _serialize(obj: Any):
-            if obj is None:
-                return None
-            if is_dataclass(obj):
-                return {k: _serialize(v) for k, v in asdict(obj).items()}
-            if isinstance(obj, (list, tuple, set)):
-                return [_serialize(i) for i in obj]
-            return obj
+        cleaned = _strip_none(asdict(self))
+        return json.dumps(cleaned, ensure_ascii=False)
 
-        prepared = {
-            "count_max": self.count_max,
-            "genres": _serialize(self.genres),
-            "dates": _serialize(self.dates),
-            "weekdays": _serialize(self.weekdays),
-            "times": _serialize(self.times),
-        }
-        # выкидываем None-ключи
-        prepared = {k: v for k, v in prepared.items() if v is not None}
-        return json.dumps(prepared, ensure_ascii=False)
 
-    def to_table(self, genre_names: dict[int, str] | None = None) -> str:
-        parts: list[str] = []
-        if self.count_max is not None:
-            parts.append(f"до {self.count_max} касс.")
-        if self.genres:
-            names = (
-                [genre_names.get(g, str(g)) for g in self.genres]
-                if genre_names
-                else map(str, self.genres)
-            )
-            parts.append(f"жанры: {', '.join(names)}")
-        if self.weekdays:
-            wd = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
-            idx = []
-            for v in self.weekdays:
-                try:
-                    idx.append(int(v))
-                except (TypeError, ValueError):
-                    continue
-            if idx:
-                parts.append("дни: " + ", ".join(wd[i - 1] for i in self.weekdays))
-        if self.dates:
-            parts.append(f"даты: {self.dates.start}‒{self.dates.end}")
-        if self.times:
-            parts.append(f"время: {self.times.start}‒{self.times.end}")
-        return "; ".join(parts) if parts else "—"
+def _strip_none(obj: Any) -> Any:
+    if obj is None:
+        return None
+    if isinstance(obj, list):
+        return [_strip_none(i) for i in obj if i is not None]
+    if isinstance(obj, dict):
+        return {k: _strip_none(v) for k, v in obj.items() if v is not None}
+    return obj
 
-    def __str__(self) -> str:
-        return self.to_table()
+
+def _load_dataclass(klass, blob: dict | None):
+    return None if blob is None else klass(**blob)

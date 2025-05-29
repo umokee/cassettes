@@ -33,7 +33,7 @@ ROLE_PERMISSIONS = {
         "ClientStatusManagement": {
             "enabled": True,
             "readonly": False,
-            "label": "Управление статусами клиентов",
+            "label": "Управление статусами",
         },
         "EmployeeManagement": {
             "enabled": True,
@@ -43,7 +43,7 @@ ROLE_PERMISSIONS = {
         "PositionManagement": {
             "enabled": True,
             "readonly": False,
-            "label": "Управление должностями сотрудников",
+            "label": "Управление должностями",
         },
         "TariffTypeManagement": {
             "enabled": True,
@@ -56,9 +56,14 @@ ROLE_PERMISSIONS = {
             "label": "Управление тарифами",
         },
         "RentalManagement": {
-            "enabled": True,
+            "enabled": False,
             "readonly": False,
             "label": "Аренды",
+        },
+        "PenaltyAccountingManagement": {
+            "enabled": False,
+            "readonly": False,
+            "label": "Штрафы",
         },
     },
     "кассир": {
@@ -111,6 +116,11 @@ ROLE_PERMISSIONS = {
             "enabled": True,
             "readonly": False,
             "label": "Аренды",
+        },
+        "PenaltyAccountingManagement": {
+            "enabled": True,
+            "readonly": False,
+            "label": "Начислить штраф",
         },
     },
 }

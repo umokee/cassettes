@@ -67,10 +67,9 @@ class ProvisionConditionDialog(QDialog):
         layout.addLayout(form)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        layout.addWidget(buttons)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-
+        layout.addWidget(buttons)
         self.setLayout(layout)
 
     def reset(self):
@@ -101,6 +100,9 @@ class ProvisionConditionDialog(QDialog):
             if cond.dates.end:
                 self.end_date.setDate(QDate.fromString(cond.dates.end, "yyyy-MM-dd"))
 
+        if cond.weekdays is not None:
+            self.weekdays_input.setCheckedIds(list(cond.weekdays))
+
         if cond.times is not None:
             if cond.times.start:
                 self.time_start.setTime(QTime.fromString(cond.times.start, "HH:mm"))
@@ -120,8 +122,8 @@ class ProvisionConditionDialog(QDialog):
         times = None
         if self.time_start.time().isValid() and self.time_end.time().isValid():
             times = TimeRange(
-                    start=self.time_start.time().toString("HH:mm"),
-                    end=self.time_end.time().toString("HH:mm"),
+                start=self.time_start.time().toString("HH:mm"),
+                end=self.time_end.time().toString("HH:mm"),
             )
 
         return TariffCondition(count, genres, dates, weekdays, times)
